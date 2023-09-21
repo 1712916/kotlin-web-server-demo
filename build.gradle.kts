@@ -33,6 +33,10 @@ dependencies {
 	implementation("com.h2database:h2")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+	//add to validate dto
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 }
 
 tasks.withType<KotlinCompile> {
