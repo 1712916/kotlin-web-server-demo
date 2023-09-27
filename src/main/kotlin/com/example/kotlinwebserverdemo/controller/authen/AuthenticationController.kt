@@ -5,14 +5,16 @@ import com.example.kotlinwebserverdemo.response.Response
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import org.springframework.data.repository.CrudRepository
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import java.util.Optional
 
 /*
  Form:
@@ -104,32 +106,21 @@ class SignUpValidator(private val signUpDto: SignUpDto) {
 }
 
 @Service
-class AuthenticationService {
-    companion object {
-        private var currentId: Long = 0
-        val users: List<UserEntity> = listOf()
-    }
-
+class AuthenticationService(private val authenticationRepository: AuthenticationRepository) {
     fun addUser(signUpDto: SignUpDto): UserEntity {
-        val newUser = UserEntity(
-            id = currentId++,
-            accountName = signUpDto.accountName,
-            userName = signUpDto.userName,
-            email = signUpDto.email,
+        return authenticationRepository.save(
+            UserEntity(
+                accountName = signUpDto.accountName,
+                userName = signUpDto.userName,
+                email = signUpDto.email,
+            )
         )
 
-        users.plus(newUser)
-
-        return newUser
     }
 
     fun findOne(signInDto: SignInDto): UserEntity {
-        val user = users.find { userEntity ->  userEntity.accountName == signInDto.accountName}
-
-        if (user == null) {
-            throw
-        }
-
-        return  user;
+        return authenticationRepository.findById(1).get()
     }
 }
+
+interface AuthenticationRepository : CrudRepository<UserEntity, Long>

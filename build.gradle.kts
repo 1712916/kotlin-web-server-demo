@@ -24,6 +24,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("com.github.salemebo:restful-api:0.2.8")
+	implementation ("org.springframework.boot:spring-boot-starter-data-jdbc")
+	implementation ("org.springframework.boot:spring-boot-starter-jdbc")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -33,6 +35,7 @@ dependencies {
 	implementation("com.h2database:h2")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	runtimeOnly ("org.postgresql:postgresql")
 
 	//add to validate dto
 	implementation("org.springframework.boot:spring-boot-starter-validation")
