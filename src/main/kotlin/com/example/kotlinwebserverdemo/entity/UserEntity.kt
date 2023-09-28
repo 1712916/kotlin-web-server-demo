@@ -21,4 +21,5 @@ data class UserEntity(
     val userName: String,
     @Column(unique = true)
     val email: String,
+    val password: String,
 )

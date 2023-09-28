@@ -5,16 +5,17 @@ import com.example.kotlinwebserverdemo.response.Response
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+//import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Repository
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+//import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.util.Optional
 
 /*
  Form:
@@ -40,6 +41,7 @@ class AuthenticationController(val authenticationService: AuthenticationService)
                     accountName = "String",
                     userName = "String",
                     email = "String",
+                    password = "",
                 )
             )
         )
@@ -47,8 +49,6 @@ class AuthenticationController(val authenticationService: AuthenticationService)
 
     @PostMapping("/sign-up")
     fun signUp(@Valid @RequestBody userForm: SignUpDto): ResponseEntity<Response<UserEntity>> {
-        SignUpValidator(userForm).validate()
-
         return ResponseEntity.ok(
             Response(
                 message = "Login successful",
@@ -106,16 +106,31 @@ class SignUpValidator(private val signUpDto: SignUpDto) {
 }
 
 @Service
-class AuthenticationService(private val authenticationRepository: AuthenticationRepository) {
+class AuthenticationService(
+    private val authenticationRepository: AuthenticationRepository,
+    ) {
+    private val passwordEncoder: PasswordEncoder = PasswordEncoder()
     fun addUser(signUpDto: SignUpDto): UserEntity {
+        SignUpValidator(signUpDto).validate()
+        //check
+        val existUserByAccountName = authenticationRepository.findByAccountName(signUpDto.accountName)
+        val existUserByEmail = authenticationRepository.findByEmail(signUpDto.email)
+        
+        if (existUserByAccountName != null || existUserByEmail != null) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Account is existed! Try another!"
+            )
+        }
+
         return authenticationRepository.save(
             UserEntity(
                 accountName = signUpDto.accountName,
                 userName = signUpDto.userName,
                 email = signUpDto.email,
+                password = passwordEncoder.encode(signUpDto.password)
             )
         )
-
     }
 
     fun findOne(signInDto: SignInDto): UserEntity {
@@ -123,4 +138,15 @@ class AuthenticationService(private val authenticationRepository: Authentication
     }
 }
 
-interface AuthenticationRepository : CrudRepository<UserEntity, Long>
+interface AuthenticationRepository : CrudRepository<UserEntity, Long> {
+    fun findByAccountName(accountName: String): UserEntity?
+    fun findByEmail(email: String): UserEntity?
+}
+
+interface UserRepository : org.springframework.data.repository.Repository<UserEntity, Long>
+class PasswordEncoder {
+    fun encode(password: String): String {
+        return BCryptPasswordEncoder()
+            .encode(password)
+    }
+}
