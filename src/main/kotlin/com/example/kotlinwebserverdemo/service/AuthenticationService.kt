@@ -68,15 +68,15 @@ class AuthenticationService(
     }
 
     fun checkExpiredToken(token: String): Boolean {
-        try {
-            return JwtUtil().validateToken(token)
+        return try {
+            JwtUtil().validateToken(token)
         } catch (e: SignatureException) {
             throw ResponseStatusException(
                 HttpStatus.NOT_ACCEPTABLE,
                 "Token is invalid"
             )
         } catch (e: ExpiredJwtException) {
-            return  false
+            false
         }
     }
 }

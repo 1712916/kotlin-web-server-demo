@@ -5,6 +5,7 @@ import com.example.kotlinwebserverdemo.dto.SignInDto
 import com.example.kotlinwebserverdemo.dto.SignUpDto
 import com.example.kotlinwebserverdemo.entity.UserEntity
 import com.example.kotlinwebserverdemo.response.Response
+import com.example.kotlinwebserverdemo.response.UserResponse
 import com.example.kotlinwebserverdemo.service.AuthenticationService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -36,11 +37,11 @@ class AuthenticationController(val authenticationService: AuthenticationService)
     }
 
     @PostMapping("/sign-up")
-    fun signUp(@Valid @RequestBody userForm: SignUpDto): ResponseEntity<Response<UserEntity>> {
+    fun signUp(@Valid @RequestBody userForm: SignUpDto): ResponseEntity<Response<UserResponse>> {
         return ResponseEntity.ok(
             Response(
                 message = "Login successful",
-                data = authenticationService.register(userForm)
+                data = UserResponse.fromUserEntity(authenticationService.register(userForm))
             )
         )
     }
