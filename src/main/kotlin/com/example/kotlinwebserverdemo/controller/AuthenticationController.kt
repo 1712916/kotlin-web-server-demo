@@ -27,9 +27,9 @@ import org.springframework.web.server.ResponseStatusException
 @Validated
 class AuthenticationController(val authenticationService: AuthenticationService) {
     @PostMapping("/sign-in")
-    fun signIn(@Valid @RequestBody userForm: SignInDto): ResponseEntity<Response<UserEntity>> {
+    fun signIn(@Valid @RequestBody userForm: SignInDto): ResponseEntity<Response<String>> {
         return ResponseEntity.ok(
-            Response<UserEntity>(
+            Response<String>(
                 message = "Login successful", data = authenticationService.signIn(userForm)
             )
         )
@@ -41,6 +41,18 @@ class AuthenticationController(val authenticationService: AuthenticationService)
             Response(
                 message = "Login successful",
                 data = authenticationService.register(userForm)
+            )
+        )
+    }
+
+    @PostMapping("/check-expire-token")
+    fun checkExpireToken(@Valid @RequestBody token: String): ResponseEntity<Response<Boolean>> {
+        val  isExpired = authenticationService.checkExpiredToken(token)
+
+        return ResponseEntity.ok(
+            Response<Boolean>(
+                message =if (isExpired) "Token is expired" else "Token is not expired",
+                data = isExpired
             )
         )
     }

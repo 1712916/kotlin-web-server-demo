@@ -4,8 +4,11 @@ import com.example.kotlinwebserverdemo.dto.SignInDto
 import com.example.kotlinwebserverdemo.dto.SignUpDto
 import com.example.kotlinwebserverdemo.entity.UserEntity
 import com.example.kotlinwebserverdemo.repository.AuthenticationRepository
+import com.example.kotlinwebserverdemo.response.UserResponse
 import com.example.kotlinwebserverdemo.util.validator.SignUpValidator
 import com.example.kotlinwebserverdemo.util.validator.Validator
+import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.SignatureException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -24,7 +27,6 @@ class AuthenticationService(
         val validator: Validator = SignUpValidator(signUpDto)
 
         validator.validate()
-
         //check
         val existUserByAccountName =
             authenticationRepository.findByAccountName(signUpDto.accountName)
@@ -47,7 +49,7 @@ class AuthenticationService(
         )
     }
 
-    fun signIn(signInDto: SignInDto): UserEntity {
+    fun signIn(signInDto: SignInDto): String {
         val existUserByAccountName =
             authenticationRepository.findByAccountName(signInDto.accountName)
                 ?: throw ResponseStatusException(
@@ -61,7 +63,20 @@ class AuthenticationService(
                 "Wrong password"
             )
         }
-        return existUserByAccountName
 
+        return JwtUtil().generateToken(UserResponse.fromUserEntity(existUserByAccountName))
+    }
+
+    fun checkExpiredToken(token: String): Boolean {
+        try {
+            return JwtUtil().validateToken(token)
+        } catch (e: SignatureException) {
+            throw ResponseStatusException(
+                HttpStatus.NOT_ACCEPTABLE,
+                "Token is invalid"
+            )
+        } catch (e: ExpiredJwtException) {
+            return  false
+        }
     }
 }

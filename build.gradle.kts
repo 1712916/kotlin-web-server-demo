@@ -41,6 +41,9 @@ dependencies {
 	//add to validate dto
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+
+	implementation("io.jsonwebtoken:jjwt:0.9.1")
+	implementation ("javax.xml.bind:jaxb-api:2.3.1") // Use the latest version available
 }
 
 tasks.withType<KotlinCompile> {
