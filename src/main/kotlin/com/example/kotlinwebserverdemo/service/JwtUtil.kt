@@ -18,7 +18,7 @@ class JwtUtil {
         return Jwts.builder()
             .claim("user", user)
             .setIssuedAt(Date())
-            .setExpiration(Date(System.currentTimeMillis() +   1000))
+            .setExpiration(Date(System.currentTimeMillis() + expiration*1000))
             .signWith(SignatureAlgorithm.HS512, secret)
             .compact()
     }
