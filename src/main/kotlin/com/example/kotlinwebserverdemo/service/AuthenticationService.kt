@@ -64,6 +64,13 @@ class AuthenticationService(
             )
         }
 
+        if (!existUserByAccountName.active) {
+            throw ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Your account is inactive"
+            )
+        }
+
         return JwtUtil().generateToken(UserResponse.fromUserEntity(existUserByAccountName))
     }
 
