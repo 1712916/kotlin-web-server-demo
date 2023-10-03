@@ -22,4 +22,5 @@ data class UserEntity(
     @Column(unique = true)
     val email: String,
     val password: String,
+    val active: Boolean = true,
 )

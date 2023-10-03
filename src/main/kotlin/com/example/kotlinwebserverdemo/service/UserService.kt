@@ -9,23 +9,36 @@ import kotlin.jvm.optionals.getOrNull
 @Service
 class  UserService(val userRepository: UserRepository) {
     fun getUserById(id: Long): UserEntity? {
-        return  userRepository.findById(id).getOrNull()
+        return userRepository.findById(id).getOrNull()
     }
 
-    fun getUsers(page: Int, size: Int, userName: String? ): List<UserEntity> {
+    fun getUsers(page: Int, size: Int, userName: String?): List<UserEntity> {
         if (userName != null) {
-            return userRepository.findByUserNameContains(userName = userName, pageable = PageRequest.of(page, size))?.toList() ?: emptyList();
+            return userRepository.findByUserNameContains(
+                userName = userName,
+                pageable = PageRequest.of(page, size)
+            )?.toList() ?: emptyList()
         }
 
         return userRepository.findAll(PageRequest.of(page, size)).toList()
     }
 
-    fun getTotalUser( userName: String?) : Long {
+    fun getTotalUser(userName: String?): Long {
         if (userName != null) {
             return userRepository.countByUserNameContains(userName)
         }
         return userRepository.count()
     }
 
+    fun activeUser(id: Long, active: Boolean): Boolean {
+        try {
+            val user = userRepository.findById(id).orElseThrow()
 
+            userRepository.save(user.copy(active = active))
+
+            return true
+        } catch (_: Exception) {}
+     
+        return false
+    }
 }
