@@ -1,24 +1,14 @@
 package com.example.kotlinwebserverdemo.controller
 
-import com.example.kotlinwebserverdemo.dto.UserDto
-import com.example.kotlinwebserverdemo.entity.UserEntity
+import com.example.kotlinwebserverdemo.response.PagingResponse
 import com.example.kotlinwebserverdemo.response.Response
 import com.example.kotlinwebserverdemo.response.UserResponse
-import com.example.kotlinwebserverdemo.response.UsersResponse
 import com.example.kotlinwebserverdemo.service.UserService
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.repository.CrudRepository
-import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestAttribute
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -37,15 +27,18 @@ class UserController(val userService: UserService) {
     }
 
     @GetMapping("")
-    fun users(@RequestBody(required = false) dto: UserDto?): ResponseEntity<Response<UsersResponse>> {
-       val userDto = dto ?: UserDto()
-        val users = userService.getUsers(userDto.page, userDto.size)
+    fun users(@RequestParam(required = false, defaultValue = "0") page: Int, @RequestParam(required = false, defaultValue = "0") size: Int, @RequestParam(required = false) userName: String? = null): ResponseEntity<Any> {
+
         return ResponseEntity.ok(
-            Response(
+            Response<PagingResponse<UserResponse>>(
                 message = "Successful",
-                data = UsersResponse(users = users.mapIndexed { _, user -> UserResponse.fromUserEntity(user)},
-                    total = userService.getTotalUser(),
+                data = PagingResponse<UserResponse>(
+                    page = page,
+                    size = size,
+                    totalRecord = userService.getTotalUser(userName),
+                    data = userService.getUsers(page, size, userName).map { userEntity ->  UserResponse.fromUserEntity(userEntity)},
+                ),
             )
-        ))
+        )
     }
 }

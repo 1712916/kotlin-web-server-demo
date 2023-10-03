@@ -23,6 +23,3 @@ data class UserResponse(
         }
     }
 }
-
-
-data class UsersResponse (val total: Long, val users: List<UserResponse>)

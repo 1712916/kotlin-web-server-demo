@@ -12,11 +12,20 @@ class  UserService(val userRepository: UserRepository) {
         return  userRepository.findById(id).getOrNull()
     }
 
-    fun getUsers(page: Int, size: Int ): List<UserEntity> {
+    fun getUsers(page: Int, size: Int, userName: String? ): List<UserEntity> {
+        if (userName != null) {
+            return userRepository.findByUserNameContains(userName = userName, pageable = PageRequest.of(page, size))?.toList() ?: emptyList();
+        }
+
         return userRepository.findAll(PageRequest.of(page, size)).toList()
     }
 
-    fun getTotalUser() : Long {
+    fun getTotalUser( userName: String?) : Long {
+        if (userName != null) {
+            return userRepository.countByUserNameContains(userName)
+        }
         return userRepository.count()
     }
+
+
 }
