@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException
 @Component
 class AuthenticationService(
     private val authenticationRepository: AuthenticationRepository,
+    private val userRoleService: UserRoleService,
 ) {
     private val passwordEncoder: PasswordEncoder = BCryptPasswordEncoder()
     fun register(signUpDto: SignUpDto): UserEntity {
@@ -39,7 +40,7 @@ class AuthenticationService(
             )
         }
 
-        return authenticationRepository.save(
+        val user = authenticationRepository.save(
             UserEntity(
                 accountName = signUpDto.accountName,
                 userName = signUpDto.userName,
@@ -47,6 +48,11 @@ class AuthenticationService(
                 password = passwordEncoder.encode(signUpDto.password)
             )
         )
+
+        ///auto add default role for new user
+        userRoleService.saveDefaultUser(user)
+
+        return user
     }
 
     fun signIn(signInDto: SignInDto): String {
