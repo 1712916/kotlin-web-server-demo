@@ -1,5 +1,7 @@
 package com.example.kotlinwebserverdemo.service
 
+import com.example.kotlinwebserverdemo.entity.RoleEntity
+import com.example.kotlinwebserverdemo.entity.UserRoleEntity
 import com.example.kotlinwebserverdemo.response.UserResponse
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -14,9 +16,10 @@ class JwtUtil {
 
     private val expiration: Long = 86400 // 24 hours, you can adjust this as needed
 
-    fun generateToken(user: UserResponse): String {
+    fun generateToken(user: UserResponse, roles: List<RoleEntity>): String {
         return Jwts.builder()
             .claim("user", user)
+            .claim("roles", roles)
             .setIssuedAt(Date())
             .setExpiration(Date(System.currentTimeMillis() + expiration*1000))
             .signWith(SignatureAlgorithm.HS512, secret)

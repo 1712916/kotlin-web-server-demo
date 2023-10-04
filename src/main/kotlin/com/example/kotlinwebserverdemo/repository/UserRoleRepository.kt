@@ -6,4 +6,6 @@ import com.example.kotlinwebserverdemo.entity.UserRoleEntity
 import org.springframework.data.repository.CrudRepository
 
 
-interface UserRoleRepository : CrudRepository<UserRoleEntity, Long> {}
+interface UserRoleRepository : CrudRepository<UserRoleEntity, Long> {
+    fun findAllByUser(user: UserEntity) : List<UserRoleEntity>
+}

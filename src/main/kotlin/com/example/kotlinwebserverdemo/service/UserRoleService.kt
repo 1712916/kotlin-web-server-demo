@@ -6,7 +6,7 @@ import com.example.kotlinwebserverdemo.repository.RoleRepository
 import com.example.kotlinwebserverdemo.repository.UserRoleRepository
 import org.springframework.stereotype.Service
 
-private const val Default_Role_Id : Long = 0
+private const val Default_Role_Id : Long = 3 //User - 3
 @Service
 class UserRoleService(private val userRoleRepository: UserRoleRepository, private  val roleRepository: RoleRepository) {
 
@@ -15,5 +15,9 @@ class UserRoleService(private val userRoleRepository: UserRoleRepository, privat
             user = user,
             role = roleRepository.findById(Default_Role_Id).get(),
         ),)
+    }
+
+    fun getRolesByUserId(user: UserEntity): List<UserRoleEntity> {
+        return userRoleRepository.findAllByUser(user)
     }
 }

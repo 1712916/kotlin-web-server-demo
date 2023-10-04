@@ -2,7 +2,9 @@ package com.example.kotlinwebserverdemo.service
 
 import com.example.kotlinwebserverdemo.dto.SignInDto
 import com.example.kotlinwebserverdemo.dto.SignUpDto
+import com.example.kotlinwebserverdemo.entity.RoleEntity
 import com.example.kotlinwebserverdemo.entity.UserEntity
+import com.example.kotlinwebserverdemo.entity.UserRoleEntity
 import com.example.kotlinwebserverdemo.repository.AuthenticationRepository
 import com.example.kotlinwebserverdemo.response.UserResponse
 import com.example.kotlinwebserverdemo.util.validator.SignUpValidator
@@ -12,7 +14,7 @@ import io.jsonwebtoken.SignatureException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
- import org.springframework.stereotype.Component
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
@@ -39,7 +41,6 @@ class AuthenticationService(
                 "Account is existed! Try another!"
             )
         }
-
         val user = authenticationRepository.save(
             UserEntity(
                 accountName = signUpDto.accountName,
@@ -48,7 +49,6 @@ class AuthenticationService(
                 password = passwordEncoder.encode(signUpDto.password)
             )
         )
-
         ///auto add default role for new user
         userRoleService.saveDefaultUser(user)
 
@@ -76,8 +76,10 @@ class AuthenticationService(
                 "Your account is inactive"
             )
         }
+        val roles: List<RoleEntity> = userRoleService.getRolesByUserId(existUserByAccountName)
+            .map { userRoleEntity -> userRoleEntity.role }
 
-        return JwtUtil().generateToken(UserResponse.fromUserEntity(existUserByAccountName))
+        return JwtUtil().generateToken(UserResponse.fromUserEntity(existUserByAccountName), roles)
     }
 
     fun checkExpiredToken(token: String): Boolean {
